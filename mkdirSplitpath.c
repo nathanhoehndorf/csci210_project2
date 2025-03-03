@@ -101,8 +101,11 @@ struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
        baseName = pathName;
        memmove(baseName, baseName+slashIndex, strlen(baseName));
     }
-    
 
-    //
+    /*
+    check and see if its root -- if so, throw an error.
+    */
+    *cwd->parentPtr->name = dirName;
+    cwd->parentPtr->fileType = 'D';
     return NULL;
 }
