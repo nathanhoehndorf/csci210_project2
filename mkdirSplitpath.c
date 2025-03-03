@@ -24,6 +24,7 @@ struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
     // SEE THE PROVIDED SOLUTION EXECUTABLE TO SEE THEIR EXPECTED BEHAVIOR
 
     // YOUR CODE HERE
+    // can i see this on github
     //
     return NULL;
 }
