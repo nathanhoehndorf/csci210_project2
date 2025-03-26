@@ -1,3 +1,4 @@
+#include <libgen.h>
 #include "types.h"
 
 extern struct NODE* root;
@@ -10,7 +11,7 @@ void mkdir(char pathName[]){
     //
     // YOUR CODE TO REPLACE THE PRINTF FUNCTION BELOW
 
-    printf("TO BE IMPLEMENTED\n");
+    
 
     return;
 }
@@ -24,88 +25,24 @@ struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
     // SEE THE PROVIDED SOLUTION EXECUTABLE TO SEE THEIR EXPECTED BEHAVIOR
 
     // YOUR CODE HERE
-
-    /*
-    to find the baseName and dirName, find the total count of /. If it is less than or equal to 1, easy
-    if it is 2, check if it is easy
-    if it is 2 or greater and hard, go from right to left, find /, and the split into two strings
-    */
-
-    int pathNameLength = sizeof(pathName) / sizeof(pathName[0]);
-    int forwardSlashCount = 0;
+    char temp[128];
+    strcpy(temp, pathName);
+    strcpy(dirName, dirname(temp));
+    strcpy(temp, pathName);
+    strcpy(baseName, basename(temp));
     
-    for (int i = 0;i < pathNameLength; i++) {
+    struct NODE* traversal = root;
 
-        if (pathName[i] == '/') {
-            forwardSlashCount++;
+    char *s;
+    s = strtok(dirName, "/");
+    while (s) {    
+        if (!traversal->childPtr->name) {
+            printf("ERROR: directory %s does not exist", traversal->childPtr->name);
+            return NULL;
         }
-
+        traversal = traversal->childPtr;
+        s = strtok(0, "/");
     }
-
-    if (forwardSlashCount == 0) {
-        baseName = pathName;
-        dirName = "";
-    } else if (forwardSlashCount == 1) {
-        if (pathName[0] == '/') {
-            dirName = "/";
-            baseName = pathName;
-            memmove(baseName, baseName+1, strlen(baseName));
-        } else {
-            int slashIndex = 0;
-            for (int j = 0; j < pathNameLength; j++) {
-                if (pathName[j] == '/') {
-                    slashIndex = j;
-                    break;
-                }
-            }
-            dirName = pathName;
-            dirName[slashIndex] = '\0';
-
-            baseName = pathName;
-            memmove(baseName, baseName+slashIndex, strlen(baseName));
-        }
-    } else if (forwardSlashCount == 2 && pathName[0] == '/') {
-            int slashIndex = 0;
-            for (int k = 1; k < pathNameLength; k++) {
-                if (pathName[k] == '/') {
-                    slashIndex = k;
-                    break;
-                }
-            }
-            dirName = pathName;
-            dirName[slashIndex] = '\0';
-
-            baseName = pathName;
-            memmove(baseName, baseName+slashIndex, strlen(baseName));
-    } else {
-
-        /*
-        two cases:
-        1. /dir/dir/file
-        remove pathName[0], now same as case 2
-        2. dir/dir/file
-        look at loop backwards until index of / is found. Then dirName is 0 through the slash index. base name is the slash index to the end
-        */
-       int slashIndex = 0;
-       for (int x = pathNameLength-1; x >= 0; x--) {
-            if (pathName[x] == '/') {
-                slashIndex = x;
-                break;
-            }
-       }
-       slashIndex = pathNameLength - slashIndex; // possibly need to add or subtract by 1
-
-       dirName = pathName;
-       dirName[slashIndex] = '\0';
-
-       baseName = pathName;
-       memmove(baseName, baseName+slashIndex, strlen(baseName));
-    }
-
-    /*
-    check and see if its root -- if so, throw an error.
-    */
-    *cwd->parentPtr->name = dirName;
-    cwd->parentPtr->fileType = 'D';
+    
     return NULL;
 }
