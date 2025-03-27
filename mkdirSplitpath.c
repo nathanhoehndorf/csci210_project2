@@ -11,9 +11,21 @@ void mkdir(char pathName[]){
     //
     // YOUR CODE TO REPLACE THE PRINTF FUNCTION BELOW
 
-    
+
 
     return;
+}
+
+struct NODE* searchChild(struct NODE* parent, const char* name) {
+    struct NODE* current = parent->childPtr;
+    while(current) {
+        if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+        current = current->siblingPtr;
+    }
+
+    return NULL;
 }
 
 //handles tokenizing and absolute/relative pathing options
@@ -33,16 +45,15 @@ struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
     
     struct NODE* traversal = root;
 
-    char *s;
-    s = strtok(dirName, "/");
-    while (s) {    
-        if (!traversal->childPtr->name) {
-            printf("ERROR: directory %s does not exist", traversal->childPtr->name);
+    char *s = strtok(dirName, "/");
+    while (s) {   
+        traversal = searchChild(traversal, s); 
+        if (!traversal) {
+            printf("ERROR: directory %s does not exist", s);
             return NULL;
         }
-        traversal = traversal->childPtr;
-        s = strtok(0, "/");
+        s = strtok(NULL, "/");
     }
     
-    return NULL;
+    return traversal;
 }
