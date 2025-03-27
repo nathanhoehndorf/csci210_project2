@@ -44,7 +44,7 @@ struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
     while (token) {
         traversal = searchChild(traversal, token);
         if (!traversal) {
-            printf("MKDIR ERROR: directory '%s' does not exist\n", token);
+            printf("MKDIR ERROR: directory %s does not exist\n", token);
             return NULL;
         }
         token = strtok(NULL, "/");
