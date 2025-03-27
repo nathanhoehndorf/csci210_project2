@@ -1,9 +1,56 @@
+#include <string.h>
 #include <libgen.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "types.h"
 
 extern struct NODE* root;
 extern struct NODE* cwd;
 
+struct NODE* searchChild(struct NODE* parent, const char* name);
+
+//handles tokenizing and absolute/relative pathing options
+struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
+
+    if (strcmp(pathName, "/") == 0) {
+        strcpy(baseName, "/");
+        strcpy(dirName, "/");
+        return root;
+    }
+
+    char temp1[128], temp2[128];
+    strcpy(temp1, pathName);
+    strcpy(temp2, pathName);
+
+    strcpy(dirName, dirname(temp1));
+    strcpy(baseName, basename(temp2));
+
+    struct NODE* traversal;
+
+    if (pathName[0] == '/') {
+        traversal = root;
+    } else {
+        traversal = cwd;
+    }
+
+    if (strcmp(dirName, ".") == 0) {
+        return traversal;
+    }
+
+    char tempDir[128];
+    strcpy(tempDir, dirName);
+
+    char* token = strtok(tempDir, "/");
+    while (token) {
+        traversal = searchChild(traversal, token);
+        if (!traversal) {
+            printf("MKDIR ERROR: directory '%s' does not exist\n", token);
+            return NULL;
+        }
+        token = strtok(NULL, "/");
+    }
+    return traversal;
+}
 
 struct NODE* searchChild(struct NODE* parent, const char* name) {
     struct NODE* current = parent->childPtr;
@@ -34,9 +81,8 @@ void mkdir(char pathName[]){
 
     if (!parent) return;
 
-    struct NODE* exists = searchChild(parent, baseName);
-    if (exists) {
-        printf("MKDIR ERROR: directory already exists\n");
+    if (searchChild(parent, baseName)) {
+        printf("MKDIR ERROR: directory %s already exists\n", pathName);
         return;
     }
 
@@ -55,43 +101,15 @@ void mkdir(char pathName[]){
     if (!parent->childPtr) {
         parent->childPtr = newNode;
     } else {
-        struct NODE* temp = parent->childPtr;
-        while (temp->siblingPtr) {
-            temp = temp->siblingPtr;
+        struct NODE* current = parent->childPtr;
+        while (current->siblingPtr) {
+            current = current->siblingPtr;
         }
-        temp->siblingPtr = newNode;
+        current->siblingPtr = newNode;
     }
 
     printf("MKDIR SUCCESS: node %s successfully created\n", pathName);
     
 }
 
-//handles tokenizing and absolute/relative pathing options
-struct NODE* splitPath(char* pathName, char* baseName, char* dirName){
 
-    // TO BE IMPLEMENTED
-    // NOTE THAT WITHOUT COMPLETING THIS FUNCTION CORRECTLY
-    // rm, rmdir, ls, cd, touch COMMANDS WILL NOT EXECUTE CORRECTLY
-    // SEE THE PROVIDED SOLUTION EXECUTABLE TO SEE THEIR EXPECTED BEHAVIOR
-
-    // YOUR CODE HERE
-    char temp[128];
-    strcpy(temp, pathName);
-    strcpy(dirName, dirname(temp));
-    strcpy(temp, pathName);
-    strcpy(baseName, basename(temp));
-    
-    struct NODE* traversal = root;
-
-    char *s = strtok(dirName, "/");
-    while (s) {   
-        traversal = searchChild(traversal, s); 
-        if (!traversal) {
-            printf("ERROR: directory %s does not exist", s);
-            return NULL;
-        }
-        s = strtok(NULL, "/");
-    }
-    
-    return traversal;
-}
